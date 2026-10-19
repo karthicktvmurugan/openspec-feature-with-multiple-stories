@@ -1,0 +1,33 @@
+{
+  "name": "openspec-feature-with-multiple-stories",
+  "version": "1.0.0",
+  "description": "A gated, multi-developer OpenSpec workflow schema for planning and implementing complex features with rigorous review gates",
+  "main": "schema/schema.yaml",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/karthicktvmurugan/openspec-feature-with-multiple-stories"
+  },
+  "keywords": [
+    "openspec",
+    "schema",
+    "workflow",
+    "feature-planning",
+    "specification",
+    "stories",
+    "multi-developer",
+    "gated-workflow",
+    "requirements",
+    "design"
+  ],
+  "author": "Karthick Murugan <karthick.murugan@thoughtworks.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/karthicktvmurugan/openspec-feature-with-multiple-stories/issues"
+  },
+  "homepage": "https://github.com/karthicktvmurugan/openspec-feature-with-multiple-stories#readme",
+  "files": [
+    "schema/",
+    "README.md",
+    "LICENSE"
+  ]
+}

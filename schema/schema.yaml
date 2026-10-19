@@ -1,0 +1,327 @@
+name: feature-with-multiple-stories
+version: 3
+description: Gated workflow - proposal → specs → design → story-map → stories → tasks
+
+# Shared rules apply to ALL artifacts in this workflow
+rules:
+  gate: |
+    Do not start this artifact unless every artifact it requires has status `confirmed`
+    in `review-status.yaml`. When drafted, set status to `in-review` and STOP.
+    Only after user explicitly confirms, set status to `confirmed` (with `confirmed_on: YYYY-MM-DD`)
+    and update the "Review status" line at the top of the file. Never proceed to the next artifact
+    in the same turn.
+
+  no_gap_filling: |
+    Never interpret, assume or infer behaviour to fill a gap. Ask the user and record
+    the confirmed answer in the artifact.
+
+  unknowns: |
+    Record every unknown and open question in the final section "Open Questions & Unknowns"
+    (question, status open/resolved, user's answer, date). Stories must have none.
+
+# Resume and restart logic for handling changes mid-workflow
+resume_strategy:
+  level_detection: |
+    When the user supplies changed context or additional details:
+    - Proposal or spec level change (intent, scope, or behaviour affected): restart from proposal
+    - Design level only with unchanged intent: restart from design
+    - Unclear: ask the user
+
+  restart_scope: |
+    Reset the restart artifact and the artifacts after it to `draft`, EXCEPT story-map,
+    story-N and task-N, which are reset only if affected (see affected_unaffected assessment).
+
+  affected_unaffected_assessment: |
+    For story-map, story-N and task-N:
+    1. PROPOSE which are affected and which are unaffected (with reason for each)
+    2. Wait for user to review and confirm or correct the proposal
+    3. Change NO status before user confirmation
+    4. Only after confirmation, reset confirmed-affected ones to `draft`, leave confirmed-unaffected
+       ones `confirmed` (no re-review)
+
+    Assessment rules:
+    - If story-N has all tasks marked complete (fully implemented): EXCLUDE from assessment,
+      do NOT reset. Keep status `confirmed`.
+    - If change would require modifying an already-implemented story: DO NOT modify it.
+      Instead, propose a NEW story for the incremental change and take the full journey
+      (story-map → story-N → task-N).
+    - If change logically calls for a new story (vertical slice, follows INVEST): propose it to user,
+      take full journey if agreed.
+    - Never decide affected/unaffected by assumption.
+
+artifacts:
+  - id: proposal
+    generates: proposal.md
+    description: High-level business justification, problem statement and impact
+    template: proposal.md
+    instruction: |
+      Create the proposal document that establishes WHY this change is needed.
+
+      Apply WORKFLOW RULES: gate, no_gap_filling, unknowns (see schema rules section).
+
+      Sections:
+      - **Why**: 1-2 sentences on the problem or opportunity from the user's perspective
+      - **Business Metrics**: Business metrics this change moves (baseline and target where known).
+        Ask user; if none, record as open question; do not invent.
+      - **What Changes**: High-level bullet list. Be specific. Mark **BREAKING** changes.
+      - **Capabilities**: Identify which specs will be created or modified
+        - **New Capabilities**: Each becomes `specs/<capability-path>/spec.md` (use kebab-case,
+          follow existing organization)
+        - **Modified Capabilities**: Only if spec-level behavior changes (not just implementation).
+          Use exact existing path under `openspec/specs/`. Leave empty if no requirement changes.
+      - **Impact**: Affected specs, systems, teams, areas. High level only.
+      - **Open Questions & Unknowns**: (see unknowns rule)
+
+      IMPORTANT: Capabilities section creates contract between proposal and specs. Research
+      existing specs first. Every change must declare at least one capability or set
+      `skip_specs: true` in `.openspec.yaml` (only for pure refactor/tooling/docs with no
+      behavior change). Do not invent requirements just to satisfy validation.
+
+      Proposal MUST NOT contain detailed specification or technical implementation details.
+      Keep concise (1-2 pages). This is the foundation for specs, design, story-map, stories and tasks.
+    requires: []
+
+  - id: specs
+    generates: "specs/**/*.md"
+    description: High-level feature specification with Given/When/Then scenarios
+    template: spec.md
+    instruction: |
+      Create specification files that define WHAT the system should do.
+
+      Apply WORKFLOW RULES: gate, no_gap_filling, unknowns (see schema rules section).
+      On resume, apply resume_strategy (see schema section).
+
+      A spec is a behavior contract, not an implementation plan.
+
+      Good spec content:
+      - Feature overview (Purpose section for new capabilities)
+      - Functional requirements with Given/When/Then scenarios
+      - Edge cases and error handling as requirements/scenarios
+      - Observable behavior users/downstream systems rely on
+      - Inputs, outputs, error conditions
+      - External constraints (security, privacy, reliability, compatibility)
+
+      Scenario breadth (not depth): keep scenarios high-level, don't enumerate every variation
+      (stories cover those). But cover sufficient breadth so architecture can be designed.
+
+      Avoid in specs (specs MUST be free of technical detail):
+      - Internal class/function names
+      - Library or framework choices
+      - Step-by-step implementation details
+      - Detailed execution plans (belong in design.md or tasks)
+
+      Format requirements:
+      - Each requirement: `### Requirement: <name>` followed by description
+      - Use SHALL/MUST for normative requirements
+      - Each scenario: `#### Scenario: <name>` with GIVEN/WHEN/THEN bullets (exactly 4 hashtags)
+        - `- **GIVEN**` (precondition)
+        - `- **WHEN**` (action or event)
+        - `- **THEN**` (expected outcome)
+        - `- **AND**` (optional, additional outcomes)
+      - Every requirement MUST have at least one scenario
+      - Place edge cases/error handling as separate requirements with scenarios
+
+      New capabilities only: start with `## Purpose` (50+ characters, what capability is for).
+      Archive copies it to main spec; without it leaves `TBD` placeholder. Do NOT add Purpose
+      to delta for existing capability (archive ignores it). To change existing Purpose or
+      leftover TBD, edit `openspec/specs/<capability-path>/spec.md` directly.
+
+      MODIFIED requirements workflow:
+      1. Locate existing requirement in `openspec/specs/<capability-path>/spec.md`
+      2. Copy ENTIRE requirement block (from `### Requirement:` through all scenarios)
+      3. Paste under `## MODIFIED Requirements` and edit for new behavior
+      4. Ensure header text matches exactly (whitespace-insensitive)
+
+      Common pitfall: MODIFIED with partial content loses detail at archive time.
+      If adding new concerns without changing existing behavior, use ADDED instead.
+
+      Specs should be testable—each scenario is a potential test case.
+    requires:
+      - proposal
+
+  - id: design
+    generates: design.md
+    description: Architectural design traceable to the proposal and spec
+    template: design.md
+    instruction: |
+      Create the design document that explains HOW the solution is shaped.
+
+      Apply WORKFLOW RULES: gate, no_gap_filling, unknowns (see schema rules section).
+      On resume, apply resume_strategy (see schema section).
+
+      Design MUST stay within boundaries set by proposal and spec, and MUST trace back
+      to functional behaviours in spec.
+
+      Level: solution overview and architecture only. NO low-level detail: no code snippets,
+      class names, method names, or implementation steps.
+
+      Sections:
+      - **Context**: Current state and constraints needed to explain approach. Reference proposal
+        for motivation (e.g., "See proposal.md - Why"), don't restate.
+      - **Goals / Non-Goals**: What design achieves and explicitly excludes. Add only design-level
+        boundaries, don't restate proposal scope.
+      - **Solution Overview**: High-level how the solution works
+      - **Architecture**: Components, responsibilities, interactions. Include Mermaid diagrams
+        for clarity: component diagram, sequence diagram, flowchart, etc. Use ```mermaid code blocks```
+      - **Traceability**: Table mapping each spec requirement/scenario to design element fulfilling it
+      - **Data Model Impact**: Entities and schema changes
+      - **API Contract Changes**: New or changed contracts (shape and behaviour only, not code)
+      - **Non-Functional Requirements**: Security, performance, reliability, etc.
+      - **Decisions**: Key choices with rationale. Include alternatives considered (why X over Y?).
+      - **Trade-offs & New Patterns**: Document trade-offs and new design patterns introduced.
+        Reference common organizational patterns. Ask user for pattern source if unknown;
+        if not confirmed, use default and ask user to confirm design at review.
+      - **Risks**: Format: [Risk] → Mitigation
+      - **Migration Plan**: Deploy and rollback steps (if applicable)
+      - **Open Questions & Unknowns**: (see unknowns rule) Questions that would change specs,
+        approach, or later artifacts MUST be asked of user and resolved, not guessed.
+
+      Good design docs explain the "why" behind technical decisions.
+    requires:
+      - proposal
+      - specs
+
+  - id: story-map
+    generates: story-map.md
+    description: Story map with sequence, dependencies, MVP ordering and spec traceability
+    template: story-map.md
+    instruction: |
+      Create story-map.md in the same folder as proposal.md, design.md and specs/.
+
+      Apply WORKFLOW RULES: gate, no_gap_filling, unknowns (see schema rules section).
+      On resume, apply resume_strategy (see schema section).
+
+      Rules:
+      - All stories MUST originate from scenarios and requirements defined in spec files
+      - Maintain clear mapping between spec scenarios and stories (every scenario → at least one story;
+        every story → at least one scenario)
+      - Do NOT add scope beyond what spec contains. If missing, ask user; don't add.
+      - Stories are deliverable slices following INVEST (Independent, Negotiable, Valuable,
+        Estimable, Small, Testable)
+      - Define sequence, dependencies and MVP ordering
+
+      Slicing rules (vertical slices, not horizontal):
+      - Each story is a vertical slice delivering end-to-end user value
+      - Each slice is a complete testable unit including implementation, tests, documentation
+      - Each slice is independently deployable and demonstrable
+      - Avoid horizontal slicing (e.g., "build all models", then "build all controllers")
+
+      Do NOT put story details in story-map. For each story, give only:
+      - Story ID (story-1, story-2, ...)
+      - Title
+      - Value statement: "As a <user persona>, When <situation>, Then <value delivered>"
+        (<user persona> is a placeholder; use actual persona, never literal "user")
+
+      Story details belong in story files.
+    requires:
+      - proposal
+      - specs
+      - design
+
+  - id: stories
+    generates: "stories-and-tasks/story-*/story-*.md"
+    description: One story file per story in the story map, with acceptance criteria
+    template: story.md
+    instruction: |
+      Create one file per story listed in story-map.md. Layout:
+        stories-and-tasks/story-1/story-1.md
+        stories-and-tasks/story-2/story-2.md
+        ...
+
+      Apply WORKFLOW RULES: gate, no_gap_filling, unknowns (see schema rules section).
+      On resume, apply resume_strategy (see schema section).
+      Stories are reviewed together as one artifact.
+
+      Each story MUST:
+      - Reference spec file(s), story-map.md, and spec scenarios it covers
+      - List ALL scenarios to be tested—positive, negative, edge cases, variations—in
+        Given/When/Then format
+      - Contain list of acceptance criteria the implemented story must meet
+      - Stay within scope of story-map entry and spec. No added scope.
+      - Contain NO implementation-specific, low-level or technical details
+
+      Keep detail reasonable without overwhelming. Do NOT add cross-cutting technical patterns
+      or architecture decisions as acceptance criteria. Examples: logging, monitoring, API
+      authorisation, standard error handlers.
+
+      There must be no unknowns. Ask user to clarify every gap before story is written.
+      Final "Open Questions & Unknowns" section must read "None" before review.
+    requires:
+      - story-map
+      - specs
+      - design
+
+  - id: tasks
+    generates: "stories-and-tasks/story-*/task-*.md"
+    description: One task file per story, placed in that story's folder
+    template: tasks.md
+    instruction: |
+      Create one task file for each story. Layout:
+        stories-and-tasks/story-1/task-1.md
+        stories-and-tasks/story-2/task-2.md
+        ...
+
+      Apply WORKFLOW RULES: gate, no_gap_filling, unknowns (see schema rules section).
+      On resume, apply resume_strategy (see schema section).
+
+      Each task file MUST:
+      - Reference design.md and matching story-N.md for scope and context
+      - Respect scope of its story. Do not add work beyond the story.
+
+      Before writing tasks, check design.md for Open Questions. If any would change what
+      gets built, resolve with user first—don't bake assumptions into task list.
+
+      IMPORTANT: Follow template exactly. Apply phase parses checkbox format. Tasks not using
+      `- [ ]` won't be tracked.
+
+      Guidelines:
+      - Group related tasks under ## numbered headings
+      - Each task MUST be a checkbox: `- [ ] X.Y Task description`
+      - Tasks should be small enough to complete in one session
+      - Order tasks by dependency (what must be done first?)
+      - Each task MUST state how to verify completion (test, command, observable behavior,
+        delivered artifact) in the checkbox description. Use separate verification task only
+        for broader integration/system behavior spanning multiple implementation tasks.
+
+      Example:
+      ```
+      ## 1. Setup
+
+      - [ ] 1.1 Create new module structure and verify expected files are present
+      - [ ] 1.2 Add dependencies to package.json and verify package installation succeeds
+
+      ## 2. Core Implementation
+
+      - [ ] 2.1 Implement data export function and verify the export test passes
+      - [ ] 2.2 Add CSV formatting utilities and verify unit tests cover quoting and delimiters
+      ```
+
+      Reference the story for what needs to be built, design for how to build it.
+    requires:
+      - stories
+      - design
+
+apply:
+  requires: [ tasks ]
+  tracks: null
+  instruction: |
+    Apply ONE story at a time (parallelizable across stories).
+
+    1. Check review-status.yaml: all artifacts upstream of stories must be `confirmed`.
+       The chosen story-N and task-N must be `confirmed` (per-item status). Other stories
+       may be in any state (in-review, draft). If checks fail, stop and tell user which
+       are not confirmed.
+
+    2. Ask user which story to implement (suggest the next one by story-map MVP order
+       and dependencies). Do not pick for them.
+
+    3. Read spec files, design.md, story-map.md, and that story's story-N.md and task-N.md.
+       Stay within story scope.
+
+    4. Work through pending tasks in task-N.md, marking `- [ ]` → `- [x]` as you go.
+       Stay within story scope.
+
+    5. Pause on blockers, gaps or unknowns; ask rather than assuming.
+
+    6. When story's tasks are done, stop and report. Start next story only when user asks.
+       Other stories may be in review or implementation simultaneously.
