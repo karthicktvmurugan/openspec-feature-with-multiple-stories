@@ -1,6 +1,8 @@
 # OpenSpec: Feature with Multiple Stories
 
-A gated, multi-developer workflow schema for OpenSpec that breaks complex features into independently deliverable stories with rigorous review gates at every step.
+A gated workflow schema for OpenSpec that breaks complex features into independently deliverable stories with rigorous review gates at every step.
+This workflow is created to complement the standard ways of working in an agile team, where a prioritised feature is analysed, designed and implemented. Each feature would typically contain more than one user story, and the delivery spans across few iterations.
+This schema adopts the default spec-driven workflow by OpenSpec with customisations added to the workflow by adding story mapping and story slicing before implementing the changes. Also, each artifact template is updated to create details typically expected in the product requirements and solution design documents.
 
 ## Overview
 
