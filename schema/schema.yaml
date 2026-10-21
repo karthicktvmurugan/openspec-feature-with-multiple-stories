@@ -156,14 +156,16 @@ artifacts:
       class names, method names, or implementation steps.
 
       Sections:
-      - **Context**: Current state and constraints needed to explain approach. Reference proposal
-        for motivation (e.g., "See proposal.md - Why"), don't restate.
+      - **Context**: High-level overview of this design in the context of the change. Include quick
+        summary of the proposal (problem, opportunity, business metrics). Reference proposal.md for
+        details but don't restate in full. Describe current state and how design addresses it.
       - **Goals / Non-Goals**: What design achieves and explicitly excludes. Add only design-level
         boundaries, don't restate proposal scope.
+      - **Solution Constraints**: Current system constraints, requirements, and conditions from existing
+        architecture, platform, or integration points that design must work within.
       - **Solution Overview**: High-level how the solution works
       - **Architecture**: Components, responsibilities, interactions. Include Mermaid diagrams
         for clarity: component diagram, sequence diagram, flowchart, etc. Use ```mermaid code blocks```
-      - **Traceability**: Table mapping each spec requirement/scenario to design element fulfilling it
       - **Data Model Impact**: Entities and schema changes
       - **API Contract Changes**: New or changed contracts (shape and behaviour only, not code)
       - **Non-Functional Requirements**: Security, performance, reliability, etc.
@@ -173,6 +175,7 @@ artifacts:
         if not confirmed, use default and ask user to confirm design at review.
       - **Risks**: Format: [Risk] → Mitigation
       - **Migration Plan**: Deploy and rollback steps (if applicable)
+      - **Traceability**: Table mapping each spec requirement/scenario to design element fulfilling it
       - **Open Questions & Unknowns**: (see unknowns rule) Questions that would change specs,
         approach, or later artifacts MUST be asked of user and resolved, not guessed.
 
@@ -234,15 +237,21 @@ artifacts:
 
       Each story MUST:
       - Reference spec file(s), story-map.md, and spec scenarios it covers
-      - List ALL scenarios to be tested—positive, negative, edge cases, variations—in
-        Given/When/Then format
-      - Contain list of acceptance criteria the implemented story must meet
+      - Include a Scope section (simple bullet points, not technical) stating what it delivers
+      - Include an Out of Scope section (simple bullet points) stating what is explicitly excluded
+      - List ALL acceptance criteria as scenarios—positive, negative, edge cases, variations—in
+        Given/When/Then format (Gherkin style)
+      - Ensure NO duplicate acceptance criteria (each scenario tested exactly once)
       - Stay within scope of story-map entry and spec. No added scope.
       - Contain NO implementation-specific, low-level or technical details
 
       Keep detail reasonable without overwhelming. Do NOT add cross-cutting technical patterns
       or architecture decisions as acceptance criteria. Examples: logging, monitoring, API
       authorisation, standard error handlers.
+
+      Deduplication rule: if a scenario appears in multiple places (e.g., both Positive and
+      Edge Cases), consolidate to one location. Each distinct acceptance criterion should map
+      to exactly one scenario.
 
       There must be no unknowns. Ask user to clarify every gap before story is written.
       Final "Open Questions & Unknowns" section must read "None" before review.

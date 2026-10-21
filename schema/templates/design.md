@@ -2,7 +2,7 @@
 
 ## Context
 
-<!-- Current state and constraints that shape the approach. See proposal.md for motivation - don't restate it -->
+<!-- High-level overview of this design artifact in the context of the change. Include a quick summary of the proposal (problem, opportunity, business metrics). Reference proposal.md for details - don't restate it in full. Describe the current state and how the design addresses it. -->
 
 ## Goals / Non-Goals
 
@@ -11,6 +11,10 @@
 
 **Non-Goals:**
 <!-- What is explicitly out of scope -->
+
+## Solution Constraints
+
+<!-- Current system constraints and requirements that shape the approach. Conditions from existing architecture, platform, or integration points that the design must work within. -->
 
 ## Solution Overview
 
@@ -44,10 +48,6 @@ Use mermaid for:
 See: https://mermaid.js.org
 -->
 
-## Traceability
-
-<!-- | Spec requirement / scenario | Design element |  -->
-
 ## Data Model Impact
 
 <!-- Entities and schema changes -->
@@ -75,6 +75,10 @@ See: https://mermaid.js.org
 ## Migration Plan
 
 <!-- Deploy and rollback steps, if applicable -->
+
+## Traceability
+
+<!-- | Spec requirement / scenario | Design element |  -->
 
 ## Open Questions & Unknowns
 

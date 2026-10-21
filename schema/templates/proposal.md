@@ -12,6 +12,10 @@
 
 <!-- High-level changes. Be specific about new capabilities, modifications, or removals. No detailed spec or technical implementation details. -->
 
+## Out of Scope
+
+<!-- What is explicitly NOT included in this change. Simple statements. -->
+
 ## Capabilities
 
 ### New Capabilities

@@ -2,19 +2,23 @@
 
 # Story N: <!-- title -->
 
-## References
-
-- Story map: `../../story-map.md`
-- Spec: `../../specs/<capability-path>/spec.md`
-- Spec scenarios covered: <!-- list -->
-
 ## Value Statement
 
 As a <!-- user persona -->, When <!-- situation -->, Then <!-- value delivered -->
 
-## Scenarios
+## Scope
 
-<!-- All positive, negative, edge cases and variations to be tested. No technical or implementation detail. -->
+- <!-- what this story delivers -->
+- <!-- what this story enables -->
+
+## Out of Scope
+
+- <!-- what is explicitly not included -->
+- <!-- what remains for other stories -->
+
+## Acceptance Criteria
+
+<!-- All positive, negative, edge cases and variations to be tested. No technical or implementation detail. Each criterion is a distinct scenario; do not duplicate scenarios. -->
 
 ### Positive
 
@@ -37,12 +41,12 @@ As a <!-- user persona -->, When <!-- situation -->, Then <!-- value delivered -
 - **WHEN** <!-- action or event -->
 - **THEN** <!-- expected outcome -->
 
-## Acceptance Criteria
-
-<!-- Reasonable list the implemented story must meet. Exclude cross-cutting patterns such as logging, monitoring, API authorisation, standard error handlers. -->
-
-- [ ] <!-- criterion -->
-
 ## Open Questions & Unknowns
 
 None
+
+## References
+
+- Story map: `../../story-map.md`
+- Spec: `../../specs/<capability-path>/spec.md`
+- Spec scenarios covered: <!-- list -->
