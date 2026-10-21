@@ -220,4 +220,4 @@ Created for teams practicing specification-driven development with OpenSpec.
 
 Version: 1.0  
 Schema version: 3  
-Last updated: 2026-10-19
+Last updated: 2026-10-21
