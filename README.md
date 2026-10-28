@@ -96,8 +96,12 @@ openspec apply --change my-feature
 - High-level only; no detailed requirements
 
 ### Specs
-- Functional requirements in Given/When/Then format
-- Edge cases and error handling
+- **Six-Element Structure**: Explicitly define Inputs, Outputs, Preconditions, and Postconditions
+- **Functional requirements** in Given/When/Then format
+- **Three scenario types**:
+  - **Happy Path**: Normal operation, system works as designed
+  - **Validation Failure**: Constraints enforced, system rejects validly
+  - **Error Handling**: System errors handled gracefully
 - Spec-level (external behavior only); no technical details
 
 ### Design
@@ -113,8 +117,8 @@ openspec apply --change my-feature
 
 ### Stories
 - One file per story (stories-and-tasks/story-N/story-N.md)
-- All scenarios (positive, negative, edge cases)
-- Acceptance criteria
+- **All scenarios with acceptance criteria** (Happy Path, Validation Failure, Error Handling)
+- Clear traceability to specs and story-map
 - No unknowns; must be complete before review
 
 ### Tasks
@@ -218,6 +222,6 @@ MIT License - See LICENSE file
 
 Created for teams practicing specification-driven development with OpenSpec.
 
-Version: 1.0  
-Schema version: 3  
-Last updated: 2026-10-21
+Version: 1.1  
+Schema version: 3.1  
+Last updated: 2026-10-28
