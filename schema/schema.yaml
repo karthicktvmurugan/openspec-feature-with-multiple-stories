@@ -1,5 +1,5 @@
 name: feature-with-multiple-stories
-version: 3
+version: 3.1
 description: Gated workflow - proposal → specs → design → story-map → stories → tasks
 
 # Shared rules apply to ALL artifacts in this workflow
@@ -95,10 +95,10 @@ artifacts:
 
       Good spec content:
       - Feature overview (Purpose section for new capabilities)
+      - Explicit inputs, outputs, preconditions, and postconditions
       - Functional requirements with Given/When/Then scenarios
-      - Edge cases and error handling as requirements/scenarios
+      - Edge cases and error handling as separate requirement scenarios
       - Observable behavior users/downstream systems rely on
-      - Inputs, outputs, error conditions
       - External constraints (security, privacy, reliability, compatibility)
 
       Scenario breadth (not depth): keep scenarios high-level, don't enumerate every variation
@@ -110,6 +110,31 @@ artifacts:
       - Step-by-step implementation details
       - Detailed execution plans (belong in design.md or tasks)
 
+      Six-Element Structure:
+      Start every spec with these sections to define the behavior contract:
+
+      1. **Inputs**: What data/parameters does this capability accept? List with types and constraints.
+      2. **Outputs**: What does the system return/produce? List with types and format.
+      3. **Preconditions**: What must be true before this capability can execute?
+      4. **Postconditions**: What is guaranteed to be true after execution? Include side effects.
+
+      Example:
+        ## Inputs
+        - **Discount Code**: Text string, 3-20 alphanumeric characters
+        - **Cart Items**: List of items with quantity and price
+
+        ## Outputs
+        - **Discount Amount**: Numeric value in currency units
+        - **New Total**: Recalculated cart total
+
+        ## Preconditions
+        - User has active session
+        - Cart contains eligible items
+
+        ## Postconditions
+        - Discount applied and persisted
+        - Cart total updated
+
       Format requirements:
       - Each requirement: `### Requirement: <name>` followed by description
       - Use SHALL/MUST for normative requirements
@@ -119,7 +144,10 @@ artifacts:
         - `- **THEN**` (expected outcome)
         - `- **AND**` (optional, additional outcomes)
       - Every requirement MUST have at least one scenario
-      - Place edge cases/error handling as separate requirements with scenarios
+      - Use same GIVEN/WHEN/THEN format for all three requirement types:
+        - **Happy Path**: Normal operation, system works as designed (e.g., "Apply Valid Discount Code")
+        - **Validation Failure**: User/system violates constraint, system rejects validly (e.g., "Reject Expired Discount Codes")
+        - **Error Handling**: System encounters error condition, handles gracefully (e.g., "Handle Database Error During Discount Lookup")
 
       New capabilities only: start with `## Purpose` (50+ characters, what capability is for).
       Archive copies it to main spec; without it leaves `TBD` placeholder. Do NOT add Purpose
@@ -135,7 +163,8 @@ artifacts:
       Common pitfall: MODIFIED with partial content loses detail at archive time.
       If adding new concerns without changing existing behavior, use ADDED instead.
 
-      Specs should be testable—each scenario is a potential test case.
+      Specs should be testable—each scenario is a potential test case. Each input/output pair
+      and precondition/postcondition should be observable and verifiable.
     requires:
       - proposal
 
