@@ -222,6 +222,5 @@ MIT License - See LICENSE file
 
 Created for teams practicing specification-driven development with OpenSpec.
 
-Version: 1.1  
-Schema version: 3.1  
-Last updated: 2026-10-28
+Schema version: 4  
+Last updated: 2026-11-17

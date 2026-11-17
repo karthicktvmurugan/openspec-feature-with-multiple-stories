@@ -1,5 +1,5 @@
 name: feature-with-multiple-stories
-version: 3.1
+version: 4
 description: Gated workflow - proposal → specs → design → story-map → stories → tasks
 
 # Shared rules apply to ALL artifacts in this workflow
